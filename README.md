@@ -31,3 +31,28 @@
 2. Tích hợp **Freshness Check** (`age_days`) vào Quality Gate
 3. Chạy **Baseline → Corruption → Repair** → xuất bảng đối chiếu 3 trạng thái
 4. **Live Demo** trên bảng & nộp link repo lên VLearn LMS
+
+## Bonus B1: Observability dashboard
+
+```powershell
+.\.venv\Scripts\python.exe dashboard/build_dashboard.py
+```
+
+Đọc artifact của baseline, corrupted, repaired và lần auto-repair B2 mới nhất rồi sinh
+`dashboard/index.html` (một file HTML, mở offline bằng trình duyệt). Dashboard hiển thị trạng thái
+quality gate và freshness SLA, phân bố `age_days` so với baseline, cảnh báo drift (số dòng, tuổi
+bài báo, metric) và kết quả từng check theo từng trạng thái. Chạy lại lệnh sau mỗi lần pipeline chạy.
+
+## Bonus B2: Auto-repair từng record
+
+```powershell
+.\.venv\Scripts\python.exe script/run_corruption_flow.py --auto-repair
+```
+
+Kiểm tra `data/clean/papers_clean_corrupted.json`; khi schema hoặc quality/freshness gate fail,
+pipeline tự sửa từng record chỉ dựa trên chính bảng đó: bỏ dòng trùng, bỏ nhiễu, khôi phục ngày
+từ `updated`, lấy lại field từ các cột dẫn xuất và bỏ dòng không khôi phục được. Dữ liệu sửa xong
+được kiểm định lại và publish ở trạng thái `completed` hoặc `partial`. Không đọc snapshot và không
+gọi mạng. Lệnh không có `--auto-repair` vẫn chạy flow bắt buộc ban đầu.
+
+Xem [hướng dẫn và bằng chứng B2](docs/AUTO_REPAIR.md) về log, artifact, kiểm thử và xử lý lỗi.

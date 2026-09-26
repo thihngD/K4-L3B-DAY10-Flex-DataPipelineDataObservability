@@ -7,7 +7,7 @@
 | Họ và tên         | Trần Đình Hinh                                                           |
 | MSSV              | 2A202602399                                                              |
 | Khóa/Lớp          | K4 / K4-L3B-DAY10                                                        |
-| Tên nhóm          | K4-L3B-DAY10-Flex                                                        |
+| Tên nhóm          | Flex                                                                    |
 | Vai trò chính     | **M2 — Data model & Eval-set owner**                                     |
 | Repository        | `https://github.com/thihngD/K4-L3B-DAY10-Flex-DataPipelineDataObservability` |
 | Ngày hoàn thành   | 2026-09-26                                                               |

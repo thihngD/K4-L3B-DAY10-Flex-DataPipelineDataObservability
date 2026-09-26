@@ -6,7 +6,7 @@
 | Thông tin       | Nội dung                                                                                                                                                 |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Khóa/Lớp        | K4 — `K4-L3B-DAY10`                                                                                                                                      |
-| Tên nhóm        | Studio.h                                                                                                                                                 |
+| Tên nhóm        | Flex                                                                                                                                                     |
 | Repository      | [https://github.com/thihngD/K4-L3B-DAY10-Flex-DataPipelineDataObservability](https://github.com/thihngD/K4-L3B-DAY10-Flex-DataPipelineDataObservability) |
 | Ngày hoàn thành | 2026-09-26                                                                                                                                               |
 
@@ -93,7 +93,7 @@ Crossref API (snapshot-first; refresh → retry/backoff → fallback snapshot)
 ### Lệnh cài đặt
 
 ```bash
-uv sync
+uv sync --extra dev
 ```
 
 ### Lệnh chạy
@@ -108,6 +108,7 @@ $env:REFRESH_TEST_SET = '0'
 $env:RUN_RAGAS = '0'
 .venv/Scripts/python.exe script/run_phase1.py
 .venv/Scripts/python.exe script/run_corruption_flow.py
+.venv/Scripts/python.exe dashboard/build_dashboard.py
 .venv/Scripts/python.exe -m pytest -q
 ```
 
@@ -122,6 +123,7 @@ Tương đương với `uv`: `uv run python script/run_phase1.py` rồi `uv run 
 | Corruption flow             | Thành công            | 2026-09-26 11:26:44 (UTC+7) — `corruption_log.generated_at`                 | `data/reports/corruption_report.md`; artifact `papers_clean_repaired.*` chỉ được ghi sau khi `[repair] verified=True` |
 | `pytest -q`                 | 28 passed             | Chạy lại tối 2026-09-26                                                     | `tests/test_pipelines.py` (6), `tests/test_auto_repair.py` (19), `tests/test_evaluation.py` (3)                       |
 | `script/check_contracts.py` | 14/14 artifact `[OK]` | Chạy lại tối 2026-09-26                                                     | raw, clean (baseline + repaired), testset, 3 freshness, 3 quality, corruption_log, 3 metrics                          |
+| Dashboard B1 (`dashboard/build_dashboard.py`) | Thành công | 2026-09-26 23:18 (UTC+7) | `dashboard/index.html`: quality gate, freshness SLA, phân bố `age_days`, cảnh báo drift so với baseline cho 4 trạng thái |
 
 
 ## 5. Ingestion, cleaning và data contract
