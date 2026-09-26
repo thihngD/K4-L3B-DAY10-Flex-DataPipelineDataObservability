@@ -8,12 +8,12 @@
 
 ## 1. Phân công
 
-| TV | Vai trò | File sở hữu (chỉ owner được sửa) | Output bàn giao | Contract phải tuân thủ |
-|---|---|---|---|---|
-| **M1** | Source & Corruption owner | `src/ingestion/crossref.py`, `src/ingestion/corruption.py`, `data/raw/*` | Raw response + raw records; hàm `corrupt_clean_dataframe` + `corruption_log.json` | Phát hành: **C1**, **C5** · Tiêu thụ: C2 |
-| **M2** | Data model & Eval-set owner | `src/ingestion/cleaning.py`, `src/evaluation/testset.py` | Clean dataframe + `text_for_embedding`; test set 10 câu | Phát hành: **C2**, **C3** · Tiêu thụ: C1 |
-| **M3** | Observability & Reporting owner | `src/observability/quality.py`, `src/observability/reporting.py` | GX 1.x quality report, freshness report, `phase1_report.md`, `corruption_report.md` | Phát hành: **C4**, **C6-§3** · Tiêu thụ: C2, C5, C6 |
-| **M4** | Integration & Repair owner (Trưởng nhóm) | `src/pipelines/phase1.py`, `src/pipelines/corruption_flow.py`, `.env.example`, toàn bộ artifact sinh ra trong `data/{clean,chroma,embeddings,eval,quality,results,reports}` | 2 flow chạy end-to-end, repair idempotent, **official run** + bộ metrics 3 trạng thái | Phát hành: **C6** · Tiêu thụ: C1–C5 |
+| TV | Nhánh Git | Vai trò | File sở hữu (chỉ owner được sửa) | Output bàn giao | Contract phải tuân thủ |
+|---|---|---|---|---|---|
+| **M1** | `gminh` | Source & Corruption owner | `src/ingestion/crossref.py`, `src/ingestion/corruption.py`, `data/raw/*` | Raw response + raw records; hàm `corrupt_clean_dataframe` + `corruption_log.json` | Phát hành: **C1**, **C5** · Tiêu thụ: C2 |
+| **M2** | `TranDinhHinh` | Data model & Eval-set owner | `src/ingestion/cleaning.py`, `src/evaluation/testset.py` | Clean dataframe + `text_for_embedding`; test set 10 câu | Phát hành: **C2**, **C3** · Tiêu thụ: C1 |
+| **M3** | `thihn/02468` | Observability & Reporting owner | `src/observability/quality.py`, `src/observability/reporting.py` | GX 1.x quality report, freshness report, `phase1_report.md`, `corruption_report.md` | Phát hành: **C4**, **C6-§3** · Tiêu thụ: C2, C5, C6 |
+| **M4** | `VanQuocDung` | Integration & Repair owner (Trưởng nhóm) | `src/pipelines/phase1.py`, `src/pipelines/corruption_flow.py`, `.env.example`, toàn bộ artifact sinh ra trong `data/{clean,chroma,embeddings,eval,quality,results,reports}` | 2 flow chạy end-to-end, repair idempotent, **official run** + bộ metrics 3 trạng thái | Phát hành: **C6** · Tiêu thụ: C1–C5 |
 
 **Code dùng chung đã hoàn chỉnh — ĐÓNG BĂNG, không ai sửa:** `src/core/*`, `src/retrieval/*`, `src/evaluation/metrics.py`, `script/run_*.py`. Nếu buộc phải sửa → M4 sửa và thông báo cả nhóm.
 
@@ -70,7 +70,7 @@ Kiểm tra output của mình có đúng contract: `python script/check_contract
 
 | Mốc | M1 | M2 | M3 | M4 |
 |---|---|---|---|---|
-| 0–15' | Setup env, đọc C1/C5 | Setup, **push `compose_text_for_embedding` + hằng số cột (C2)** | Setup, đọc C4 | Setup, `.env`, tạo 4 nhánh, đọc toàn bộ C* |
+| 0–15' | Setup env, đọc C1/C5 | Setup, **push `compose_text_for_embedding` + hằng số cột (C2)** | Setup, đọc C4 | Setup, `.env`, kiểm tra 4 nhánh đã merge `main`, đọc toàn bộ C* |
 | 15–60' | `crossref.py` (CP0) | `build_clean_dataframe` (CP1) | `run_data_quality_checks`, `build_freshness_report` (CP1) | `phase1.py` chạy với fixture |
 | 60–95' | `corruption.py` (CP4) | `build_test_set` (CP2) | `generate_phase1_report` | Merge M1/M2/M3 bản đầu → chạy thật `run_phase1.py` (CP3) |
 | 95–150' | Tự test corruption với clean thật; B3 nếu dư | Hỗ trợ M4 kiểm tra repaired == baseline | `generate_corruption_report` | `corruption_flow.py` + repair (CP4–CP5) |
@@ -82,8 +82,12 @@ Kiểm tra output của mình có đúng contract: `python script/check_contract
 
 ## 5. Quy tắc Git (tránh đè lên nhau)
 
-1. Nhánh riêng: `feat/m1-source-corruption`, `feat/m2-cleaning-testset`, `feat/m3-observability`, `feat/m4-integration`. Merge vào `main` bằng **merge commit** (không squash) để giữ commit từng người → Insights > Contributors đủ 4 người.
-2. **Chỉ `git add` file mình sở hữu**. Cấm `git add .` / `git add -A`.
+1. Nhánh riêng: M1 `gminh` · M2 `TranDinhHinh` · M3 `thihn/02468` · M4 `VanQuocDung`. **Không push thẳng lên `main`.** Merge vào `main` bằng PR **"Create a merge commit"** (không squash, không rebase) để giữ commit từng người → Insights > Contributors đủ 4 người.
+   - Bắt đầu làm: `git fetch origin && git checkout <nhánh> && git merge origin/main` (phải có `docs/rules/` trước khi code).
+   - Khi `main` có thay đổi mới (rule, code người khác đã merge): `git merge origin/main` vào nhánh mình, không rebase nhánh đã push.
+   - M4 tích hợp thử trước khi các PR vào `main`: tạo nhánh local `integration` từ `VanQuocDung` rồi `git merge origin/gminh origin/TranDinhHinh origin/thihn/02468` — **không push nhánh này**.
+   - Thứ tự merge PR vào `main`: M2 → M1 → M3 → M4 (theo chiều phụ thuộc C2 → C5/C4 → C6).
+2. **Chỉ `git add` file mình sở hữu**. Cấm `git add .` / `git add -A`. File dùng chung (`requirements.txt`, `pyproject.toml`, `uv.lock`, `src/core/*`, `src/retrieval/*`) chỉ đổi khi cả nhóm đồng ý.
 3. Artifact sinh ra khi chạy thử cục bộ (`data/clean`, `data/chroma`, `data/results`…) **không commit** — chỉ M4 commit từ official run. `data/raw/*` chỉ M1 commit, và **không** thay snapshot trừ khi cả nhóm đồng ý.
 4. `TEAM.md`, `group_report.md`: mỗi người chỉ sửa đúng mục của mình (C7) → tránh conflict. Báo cáo cá nhân: `report/<MSSV>_HoTen.md`.
 5. Không commit `.env`. Không hardcode đường dẫn tuyệt đối — luôn dùng `settings.paths.*`.
