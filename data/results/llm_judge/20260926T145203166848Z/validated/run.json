@@ -1,0 +1,32 @@
+{
+  "status": "completed",
+  "validated_at": "2026-09-26T14:55:39.388985+00:00",
+  "source_run": "data/results/llm_judge/20260926T145203166848Z/run.json",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "response_models": [
+    "gpt-4o-mini-2024-07-18"
+  ],
+  "temperature": 0.0,
+  "heuristic_fallback_allowed": false,
+  "method": "Reuse real LLM judgments for nonempty answers; reject empty answers using evaluation.metrics._judge_answer.",
+  "live_llm_verdicts": 37,
+  "empty_answer_rejections": [
+    {
+      "stage": "corrupted",
+      "id": "q05"
+    },
+    {
+      "stage": "auto_repair",
+      "id": "q04"
+    },
+    {
+      "stage": "auto_repair",
+      "id": "q08"
+    }
+  ],
+  "guard_source": "src/evaluation/metrics.py",
+  "guard_source_sha256": "9c2a859cb1c3a73c3c8a0238b4ed11f5483fe5957b41fc54389af9a349977992",
+  "benchmark_sha256": "c74629783d6a6c2ad1bfbc3e3c60bfb724e3e55a08d0102c7013bcaafb796c8e",
+  "note": "Raw LLM incorrectly accepted empty B2 q04/q08 and assigned score 3 to empty corrupted q05. Original responses are retained in the source run."
+}

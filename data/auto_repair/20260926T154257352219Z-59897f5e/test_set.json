@@ -1,0 +1,92 @@
+[
+  {
+    "id": "q01",
+    "question_type": "summary",
+    "question": "What is the main contribution of the paper 'Agentic Retrieval-Augmented Generation for Knowledge-Intensive Tasks'?",
+    "ground_truth": "Retrieval-Augmented Generation (RAG) significantly improves large language model accuracy by grounding responses in retrieved passages.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671801"
+    ]
+  },
+  {
+    "id": "q02",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Freshness SLAs for Real-Time LLM Knowledge Augmentation'?",
+    "ground_truth": "Bao Do, Linh Ngo",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671804"
+    ]
+  },
+  {
+    "id": "q03",
+    "question_type": "date",
+    "question": "When was the paper 'Semantic Layer Integration for Agentic Text-to-SQL Pipelines' published?",
+    "ground_truth": "2026-05-02",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671806"
+    ]
+  },
+  {
+    "id": "q04",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Chunking Strategies for Technical Documentation Retrieval' belong to?",
+    "ground_truth": "Information Retrieval, Natural Language Processing",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671809"
+    ]
+  },
+  {
+    "id": "q05",
+    "question_type": "summary",
+    "question": "What is the main contribution of the paper 'Hybrid Search Architectures: Combining BM25 with Dense Representations'?",
+    "ground_truth": "Dense vector search excels at conceptual similarity but struggles with exact acronyms and serial numbers.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671811"
+    ]
+  },
+  {
+    "id": "q06",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Advanced Perspectives on Data Observability and Quality Gates for Production RAG Systems'?",
+    "ground_truth": "Anh Tran, Quoc Pham",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671814"
+    ]
+  },
+  {
+    "id": "q07",
+    "question_type": "date",
+    "question": "When was the paper 'Advanced Perspectives on Freshness SLAs for Real-Time LLM Knowledge Augmentation' published?",
+    "ground_truth": "2026-06-04",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671816"
+    ]
+  },
+  {
+    "id": "q08",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Advanced Perspectives on Synthetic Corruption Testing: Stress-Testing Vector Search Robustness' belong to?",
+    "ground_truth": "Robustness, Information Retrieval",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671819"
+    ]
+  },
+  {
+    "id": "q09",
+    "question_type": "summary",
+    "question": "What is the main contribution of the paper 'Advanced Perspectives on Chunking Strategies for Technical Documentation Retrieval'?",
+    "ground_truth": "An extended empirical study on ierarchical and semantic boundary chunking preserves code block contexts and markdown headings.",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671821"
+    ]
+  },
+  {
+    "id": "q10",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Advanced Perspectives on Continuous Benchmark Evaluation for Enterprise Retrieval Pipelines'?",
+    "ground_truth": "Quang Le, Yen Vu",
+    "ground_truth_doc_ids": [
+      "10.1145/3637528.3671824"
+    ]
+  }
+]

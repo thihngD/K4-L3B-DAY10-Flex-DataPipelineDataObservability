@@ -108,6 +108,17 @@ Key trong `*_metrics.json`: `samples`, `retrieval_hit_rate`, `mean_token_f1`, `j
 2. Commit toàn bộ artifact trong **một** commit `artifacts: official run <YYYY-MM-DD HH:MM>`; báo hash commit vào nhóm.
 3. Từ đây mọi số trong group/individual report **chỉ chép từ artifact của commit đó**. Có sửa code → chạy lại official run, báo hash mới.
 
+## 6. Bonus B2 — auto-repair từng record riêng biệt
+
+`python script/run_corruption_flow.py --auto-repair` kiểm tra dữ liệu corrupted đã có;
+khi schema/quality/freshness gate fail thì tự sửa từng record chỉ dựa trên chính bảng đó
+(bỏ dòng trùng, bỏ nhiễu, khôi phục ngày từ `updated`, lấy lại field từ các cột dẫn xuất,
+bỏ dòng không khôi phục được), rồi kiểm định lại: qua hết → `completed`; sửa được một phần
+mà không làm fail thêm check nào → `partial`; còn lại không publish. Không đọc snapshot,
+baseline, corruption log và không gọi mạng. Artifact nằm riêng tại `data/auto_repair/`.
+Không có flag thì vẫn chạy flow bắt buộc tại §2.
+Chi tiết và bằng chứng: [AUTO_REPAIR.md](../AUTO_REPAIR.md).
+
 ## Changelog
 | Version | Thay đổi | Người duyệt |
 |---|---|---|

@@ -1,0 +1,19 @@
+{
+  "source_api": "Crossref REST API",
+  "source_query": "agentic retrieval augmented generation large language model",
+  "source_filter": "from-pub-date:2026-03-30,has-abstract:true",
+  "fetch_mode": "snapshot",
+  "raw_records": 24,
+  "clean_rows": 24,
+  "run_date": "2026-09-26T04:25:47.757226+00:00",
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "collection_name": "papers-baseline",
+  "top_k": 4,
+  "llm_provider": "mock",
+  "llm_model": "mock",
+  "test_set_path": "data/eval/test_set.json",
+  "test_set_size": 10,
+  "test_set_sha256": "c74629783d6a6c2ad1bfbc3e3c60bfb724e3e55a08d0102c7013bcaafb796c8e",
+  "raw_records_sha256": "87b6413046082aa85518ebd6142aa5fccc88926dcbb65c83de60e9302e62446e",
+  "clean_sha256": "a916dde3e90ca9ba0cc3615a00a300093fb572c736faabb049bb19e765ea5cca"
+}

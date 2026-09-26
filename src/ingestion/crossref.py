@@ -6,11 +6,12 @@ import html
 from pathlib import Path
 import re
 import time
+from typing import Any
 
 import requests
 
 from core.config import Settings
-from core.utils import normalize_whitespace, read_json, write_json
+from core.utils import normalize_whitespace, now_utc, read_json, write_json
 
 
 @dataclass(frozen=True)
@@ -134,10 +135,19 @@ def parse_crossref_payload(payload: dict) -> list[PaperRecord]:
     return records
 
 
-def fetch_source_records(settings: Settings) -> list[PaperRecord]:
-    """Fetch Crossref records, preferring the shared local snapshot by default."""
+def fetch_source_records(
+    settings: Settings,
+    *,
+    live_only: bool = False,
+    attempt_log: list[dict[str, Any]] | None = None,
+) -> list[PaperRecord]:
+    """Fetch records; live_only bypasses snapshots and disables fallback.
+
+    Optional attempt_log receives HTTP outcomes, including failed attempts.
+    Callers doing live recovery must provide separate output paths in settings.
+    """
     snapshot_path = settings.paths.raw_api_response
-    use_snapshot = not settings.refresh_source and snapshot_path.exists()
+    use_snapshot = not live_only and not settings.refresh_source and snapshot_path.exists()
     mode = "snapshot"
 
     if use_snapshot:
@@ -152,28 +162,47 @@ def fetch_source_records(settings: Settings) -> list[PaperRecord]:
         payload = None
         last_error: Exception | None = None
         for attempt in range(4):
+            event: dict[str, Any] = {"attempt": attempt + 1, "started_at": now_utc().isoformat()}
+            if attempt_log is not None:
+                attempt_log.append(event)
             try:
                 response = requests.get("https://api.crossref.org/works", params=params, timeout=30)
+                event["status_code"] = response.status_code
                 response.raise_for_status()
-                payload = response.json()
+                candidate = response.json()
+                if (
+                    not isinstance(candidate, dict)
+                    or not isinstance(candidate.get("message"), dict)
+                    or not isinstance(candidate["message"].get("items"), list)
+                ):
+                    raise ValueError("Crossref response must contain message.items as a list")
+                payload = candidate
                 write_json(snapshot_path, payload)
                 mode = "live"
+                event["status"] = "success"
                 break
             except requests.HTTPError as exc:
                 last_error = exc
+                event.update(status="http_error", error=str(exc))
                 status = exc.response.status_code if exc.response is not None else None
                 if status not in retry_statuses:
                     break
             except requests.RequestException as exc:
                 last_error = exc
+                event.update(status="network_error", error=str(exc))
             except ValueError as exc:
                 last_error = exc
+                event.update(status="invalid_response", error=str(exc))
                 break
+            finally:
+                event["finished_at"] = now_utc().isoformat()
 
             if attempt < 3:
                 time.sleep(2**attempt)
 
         if payload is None:
+            if live_only:
+                raise RuntimeError(f"Live Crossref request failed; snapshot fallback is disabled: {last_error}")
             if not snapshot_path.exists():
                 raise RuntimeError(f"Crossref request failed and no local snapshot is available: {last_error}")
             print(f"[crossref] fallback to local snapshot: {last_error}")

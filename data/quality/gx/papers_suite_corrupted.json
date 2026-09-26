@@ -1,0 +1,102 @@
+{
+  "name": "papers_suite_corrupted",
+  "id": "2d270b35-1a46-4f28-9d71-47b70a0fbc4f",
+  "expectations": [
+    {
+      "type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 23,
+        "max_value": 24
+      },
+      "meta": {
+        "check_id": "row_count"
+      },
+      "id": "0eb51bd4-7430-42db-81ee-877776227a71",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "paper_id"
+      },
+      "meta": {
+        "check_id": "paper_id_not_null"
+      },
+      "id": "24cc7230-a4c6-4488-9453-3c56bf69c3c7",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "title"
+      },
+      "meta": {
+        "check_id": "title_not_null"
+      },
+      "id": "81501b38-5f61-4b6f-8ceb-6154a0195b2b",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "summary"
+      },
+      "meta": {
+        "check_id": "summary_not_null"
+      },
+      "id": "23fe9044-c90a-485e-a579-78231e9b1ac6",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_be_unique",
+      "kwargs": {
+        "column": "paper_id"
+      },
+      "meta": {
+        "check_id": "paper_id_unique"
+      },
+      "id": "b51f61e9-d353-4816-8d6c-04a7d8ae10d5",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_value_lengths_to_be_between",
+      "kwargs": {
+        "column": "title",
+        "min_value": 8
+      },
+      "meta": {
+        "check_id": "title_length"
+      },
+      "id": "445f12e0-9ac9-44ac-baaa-20fa47739986",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_value_lengths_to_be_between",
+      "kwargs": {
+        "column": "summary",
+        "min_value": 50
+      },
+      "meta": {
+        "check_id": "summary_length"
+      },
+      "id": "ab0ad822-f3f3-4716-bfb5-de2af7a623b7",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_match_regex",
+      "kwargs": {
+        "column": "summary",
+        "regex": "[@#$%&*~^]{4,}"
+      },
+      "meta": {
+        "check_id": "summary_no_noise"
+      },
+      "id": "e16ef13d-74a9-487a-902e-cca0fa2e9976",
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "1.18.0"
+  },
+  "notes": null
+}

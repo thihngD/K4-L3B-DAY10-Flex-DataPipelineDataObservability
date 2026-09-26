@@ -46,6 +46,13 @@ def _token_f1(reference: str, prediction: str) -> float:
 
 
 def _judge_answer(settings: Settings, question: str, reference: str, prediction: str) -> JudgeVerdict:
+    # An LLM can mistake the reference for the prediction when the latter is blank.
+    if not prediction.strip():
+        return JudgeVerdict(
+            score=1,
+            correct=False,
+            reasoning="Empty model answer; rejected before LLM judging.",
+        )
     prompt = f"""
 Evaluate the model answer against the reference answer.
 

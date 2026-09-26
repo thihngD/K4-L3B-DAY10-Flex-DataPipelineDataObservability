@@ -1,0 +1,14 @@
+{
+  "run_id": "20260926T154257352219Z-59897f5e",
+  "status": "partial",
+  "remaining_failures": [
+    "row_count",
+    "title_length"
+  ],
+  "published_at": "2026-09-26T15:43:04.865296+00:00",
+  "run_directory": "data/auto_repair/20260926T154257352219Z-59897f5e",
+  "clean_json": "data/auto_repair/20260926T154257352219Z-59897f5e/papers_clean_repaired.json",
+  "embeddings_manifest": "data/auto_repair/20260926T154257352219Z-59897f5e/papers_embeddings_repaired.json",
+  "repair_log": "data/auto_repair/20260926T154257352219Z-59897f5e/repair_log.json",
+  "collection_name": "papers-auto-repair-20260926t154257352219z-59897f5e"
+}

@@ -10,6 +10,11 @@ fetch_source_records(settings: Settings) -> list[PaperRecord]
 load_raw_records(path: Path) -> list[PaperRecord]
 ```
 
+Bonus B2 mở rộng tương thích ngược: `fetch_source_records(settings, *, live_only=False,
+attempt_log=None)`. Khi `live_only=True`, luôn gọi mạng và không fallback snapshot;
+caller dùng đường dẫn output riêng cho mỗi lần recovery. `attempt_log` là list nhận
+kết quả từng HTTP attempt. Mặc định vẫn giữ hành vi C1 bên dưới.
+
 `PaperRecord` (dataclass frozen, đã có trong `crossref.py`) — **không thêm/bớt/đổi tên trường.**
 
 ## 2. Trường của `PaperRecord`

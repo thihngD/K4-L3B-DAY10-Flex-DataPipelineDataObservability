@@ -1,0 +1,427 @@
+{
+  "run_id": "20260926T154257352219Z-59897f5e",
+  "status": "partial",
+  "started_at": "2026-09-26T15:42:57.352219+00:00",
+  "run_directory": "data/auto_repair/20260926T154257352219Z-59897f5e",
+  "input_path": "data/clean/papers_clean_corrupted.json",
+  "evaluation": {
+    "status": "completed",
+    "metrics": {
+      "samples": 10,
+      "retrieval_hit_rate": 0.9,
+      "mean_token_f1": 0.8,
+      "judge_accuracy": 0.8,
+      "mean_judge_score": 4.2,
+      "ragas": {
+        "skipped": "Set RUN_RAGAS=1 to enable the slower Ragas pass."
+      }
+    }
+  },
+  "input_sha256": "563371290d25f8bd421ceca4928a611e176149a8683181403547bf55c795bf49",
+  "input_rows": 21,
+  "input_validation": {
+    "success": false,
+    "schema": {
+      "success": true,
+      "errors": []
+    },
+    "quality": {
+      "report_name": "corrupted",
+      "success": false,
+      "gx_success": false,
+      "row_count": 21,
+      "passed_checks": 3,
+      "failed_checks": 6,
+      "total_checks": 9,
+      "checks": [
+        {
+          "id": "row_count",
+          "expectation": "ExpectTableRowCountToBeBetween",
+          "column": null,
+          "dimension": "Volume",
+          "success": false,
+          "observed_value": 21,
+          "unexpected_count": 0,
+          "threshold": "23..24"
+        },
+        {
+          "id": "paper_id_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "paper_id",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "title_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "title",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "summary_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "summary",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "paper_id_unique",
+          "expectation": "ExpectColumnValuesToBeUnique",
+          "column": "paper_id",
+          "dimension": "Uniqueness",
+          "success": false,
+          "observed_value": 19.0476,
+          "unexpected_count": 4,
+          "threshold": "unique"
+        },
+        {
+          "id": "title_length",
+          "expectation": "ExpectColumnValueLengthsToBeBetween",
+          "column": "title",
+          "dimension": "Validity",
+          "success": false,
+          "observed_value": 14.2857,
+          "unexpected_count": 3,
+          "threshold": "len>=8"
+        },
+        {
+          "id": "summary_length",
+          "expectation": "ExpectColumnValueLengthsToBeBetween",
+          "column": "summary",
+          "dimension": "Completeness/Validity",
+          "success": false,
+          "observed_value": 14.2857,
+          "unexpected_count": 3,
+          "threshold": "len>=50"
+        },
+        {
+          "id": "summary_no_noise",
+          "expectation": "ExpectColumnValuesToNotMatchRegex",
+          "column": "summary",
+          "dimension": "Validity",
+          "success": false,
+          "observed_value": 14.2857,
+          "unexpected_count": 3,
+          "threshold": "[@#$%&*~^]{4,}"
+        },
+        {
+          "id": "freshness_sla",
+          "expectation": "custom:stale_ratio<=0.25",
+          "column": null,
+          "dimension": "Timeliness",
+          "success": false,
+          "observed_value": 0.2857,
+          "unexpected_count": 6,
+          "threshold": "age_days>180 ratio<=0.25"
+        }
+      ],
+      "freshness": {
+        "stale_rows": 6,
+        "total_rows": 21,
+        "stale_ratio": 0.2857,
+        "is_fresh": false
+      },
+      "generated_at": "2026-09-26T15:42:57+00:00"
+    },
+    "freshness": {
+      "latest_published": "2026-06-12",
+      "oldest_published": "2025-02-21",
+      "stale_rows": 6,
+      "total_rows": 21,
+      "stale_ratio": 0.2857,
+      "threshold_days": 180,
+      "max_stale_ratio": 0.25,
+      "is_fresh": false,
+      "generated_at": "2026-09-26T15:42:57+00:00"
+    }
+  },
+  "repair_summary": {
+    "unrecoverable_field": 3,
+    "dropped_row": 3,
+    "dropped_duplicate": 2,
+    "repaired_field": 9
+  },
+  "repaired_fields": {
+    "summary:strip_noise": 3,
+    "published:from_updated": 6
+  },
+  "repairs": [
+    {
+      "action": "unrecoverable_field",
+      "row": 0,
+      "paper_id": "10.1145/3637528.3671824",
+      "field": "title",
+      "reason": "Shorter than 8 characters",
+      "value": "Advanc"
+    },
+    {
+      "action": "dropped_row",
+      "row": 1,
+      "paper_id": "10.1145/3637528.3671823",
+      "reason": "Cannot recover summary"
+    },
+    {
+      "action": "dropped_duplicate",
+      "row": 3,
+      "paper_id": "10.1145/3637528.3671822"
+    },
+    {
+      "action": "dropped_row",
+      "row": 4,
+      "paper_id": "10.1145/3637528.3671820",
+      "reason": "Cannot recover summary"
+    },
+    {
+      "action": "repaired_field",
+      "row": 6,
+      "paper_id": "10.1145/3637528.3671818",
+      "field": "summary",
+      "method": "strip_noise",
+      "before": "@#$%&*~^ An extended empirical study on onnecting LLMs directly to raw warehouse...",
+      "after": "An extended empirical study on onnecting LLMs directly to raw warehouse tables o..."
+    },
+    {
+      "action": "repaired_field",
+      "row": 7,
+      "paper_id": "10.1145/3637528.3671816",
+      "field": "summary",
+      "method": "strip_noise",
+      "before": "@#$%&*~^ An extended empirical study on e define freshness service-level agreeme...",
+      "after": "An extended empirical study on e define freshness service-level agreements (SLAs..."
+    },
+    {
+      "action": "dropped_row",
+      "row": 8,
+      "paper_id": "10.1145/3637528.3671815",
+      "reason": "Cannot recover summary"
+    },
+    {
+      "action": "repaired_field",
+      "row": 10,
+      "paper_id": "10.1145/3637528.3671813",
+      "field": "summary",
+      "method": "strip_noise",
+      "before": "@#$%&*~^ An extended empirical study on etrieval-Augmented Generation (RAG) sign...",
+      "after": "An extended empirical study on etrieval-Augmented Generation (RAG) significantly..."
+    },
+    {
+      "action": "unrecoverable_field",
+      "row": 11,
+      "paper_id": "10.1145/3637528.3671811",
+      "field": "title",
+      "reason": "Shorter than 8 characters",
+      "value": "Hybrid"
+    },
+    {
+      "action": "unrecoverable_field",
+      "row": 12,
+      "paper_id": "10.1145/3637528.3671806",
+      "field": "title",
+      "reason": "Shorter than 8 characters",
+      "value": "Semant"
+    },
+    {
+      "action": "dropped_duplicate",
+      "row": 14,
+      "paper_id": "10.1145/3637528.3671803"
+    },
+    {
+      "action": "repaired_field",
+      "row": 15,
+      "paper_id": "10.1145/3637528.3671821",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-05-05",
+      "after": "2026-06-09"
+    },
+    {
+      "action": "repaired_field",
+      "row": 16,
+      "paper_id": "10.1145/3637528.3671810",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-05-04",
+      "after": "2026-06-08"
+    },
+    {
+      "action": "repaired_field",
+      "row": 17,
+      "paper_id": "10.1145/3637528.3671817",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-05-01",
+      "after": "2026-06-05"
+    },
+    {
+      "action": "repaired_field",
+      "row": 18,
+      "paper_id": "10.1145/3637528.3671801",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-04-15",
+      "after": "2026-05-20"
+    },
+    {
+      "action": "repaired_field",
+      "row": 19,
+      "paper_id": "10.1145/3637528.3671809",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-03-26",
+      "after": "2026-04-30"
+    },
+    {
+      "action": "repaired_field",
+      "row": 20,
+      "paper_id": "10.1145/3637528.3671805",
+      "field": "published",
+      "method": "from_updated",
+      "before": "2025-02-21",
+      "after": "2026-03-28"
+    }
+  ],
+  "output_rows": 16,
+  "candidate_validation": {
+    "success": false,
+    "schema": {
+      "success": true,
+      "errors": []
+    },
+    "quality": {
+      "report_name": "repaired",
+      "success": false,
+      "gx_success": false,
+      "row_count": 16,
+      "passed_checks": 7,
+      "failed_checks": 2,
+      "total_checks": 9,
+      "checks": [
+        {
+          "id": "row_count",
+          "expectation": "ExpectTableRowCountToBeBetween",
+          "column": null,
+          "dimension": "Volume",
+          "success": false,
+          "observed_value": 16,
+          "unexpected_count": 0,
+          "threshold": "23..24"
+        },
+        {
+          "id": "paper_id_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "paper_id",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "title_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "title",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "summary_not_null",
+          "expectation": "ExpectColumnValuesToNotBeNull",
+          "column": "summary",
+          "dimension": "Completeness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "no nulls"
+        },
+        {
+          "id": "paper_id_unique",
+          "expectation": "ExpectColumnValuesToBeUnique",
+          "column": "paper_id",
+          "dimension": "Uniqueness",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "unique"
+        },
+        {
+          "id": "title_length",
+          "expectation": "ExpectColumnValueLengthsToBeBetween",
+          "column": "title",
+          "dimension": "Validity",
+          "success": false,
+          "observed_value": 18.75,
+          "unexpected_count": 3,
+          "threshold": "len>=8"
+        },
+        {
+          "id": "summary_length",
+          "expectation": "ExpectColumnValueLengthsToBeBetween",
+          "column": "summary",
+          "dimension": "Completeness/Validity",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "len>=50"
+        },
+        {
+          "id": "summary_no_noise",
+          "expectation": "ExpectColumnValuesToNotMatchRegex",
+          "column": "summary",
+          "dimension": "Validity",
+          "success": true,
+          "observed_value": 0.0,
+          "unexpected_count": 0,
+          "threshold": "[@#$%&*~^]{4,}"
+        },
+        {
+          "id": "freshness_sla",
+          "expectation": "custom:stale_ratio<=0.25",
+          "column": null,
+          "dimension": "Timeliness",
+          "success": true,
+          "observed_value": 0.0625,
+          "unexpected_count": 1,
+          "threshold": "age_days>180 ratio<=0.25"
+        }
+      ],
+      "freshness": {
+        "stale_rows": 1,
+        "total_rows": 16,
+        "stale_ratio": 0.0625,
+        "is_fresh": true
+      },
+      "generated_at": "2026-09-26T15:42:57+00:00"
+    },
+    "freshness": {
+      "latest_published": "2026-06-12",
+      "oldest_published": "2026-03-28",
+      "stale_rows": 1,
+      "total_rows": 16,
+      "stale_ratio": 0.0625,
+      "threshold_days": 180,
+      "max_stale_ratio": 0.25,
+      "is_fresh": true,
+      "generated_at": "2026-09-26T15:42:57+00:00"
+    }
+  },
+  "remaining_failures": [
+    "row_count",
+    "title_length"
+  ],
+  "collection_name": "papers-auto-repair-20260926t154257352219z-59897f5e",
+  "test_set_sha256": "c74629783d6a6c2ad1bfbc3e3c60bfb724e3e55a08d0102c7013bcaafb796c8e",
+  "finished_at": "2026-09-26T15:43:04.865515+00:00"
+}

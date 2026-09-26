@@ -1,0 +1,108 @@
+{
+  "report_name": "corrupted",
+  "success": false,
+  "gx_success": false,
+  "row_count": 21,
+  "passed_checks": 3,
+  "failed_checks": 6,
+  "total_checks": 9,
+  "checks": [
+    {
+      "id": "row_count",
+      "expectation": "ExpectTableRowCountToBeBetween",
+      "column": null,
+      "dimension": "Volume",
+      "success": false,
+      "observed_value": 21,
+      "unexpected_count": 0,
+      "threshold": "23..24"
+    },
+    {
+      "id": "paper_id_not_null",
+      "expectation": "ExpectColumnValuesToNotBeNull",
+      "column": "paper_id",
+      "dimension": "Completeness",
+      "success": true,
+      "observed_value": 0.0,
+      "unexpected_count": 0,
+      "threshold": "no nulls"
+    },
+    {
+      "id": "title_not_null",
+      "expectation": "ExpectColumnValuesToNotBeNull",
+      "column": "title",
+      "dimension": "Completeness",
+      "success": true,
+      "observed_value": 0.0,
+      "unexpected_count": 0,
+      "threshold": "no nulls"
+    },
+    {
+      "id": "summary_not_null",
+      "expectation": "ExpectColumnValuesToNotBeNull",
+      "column": "summary",
+      "dimension": "Completeness",
+      "success": true,
+      "observed_value": 0.0,
+      "unexpected_count": 0,
+      "threshold": "no nulls"
+    },
+    {
+      "id": "paper_id_unique",
+      "expectation": "ExpectColumnValuesToBeUnique",
+      "column": "paper_id",
+      "dimension": "Uniqueness",
+      "success": false,
+      "observed_value": 19.0476,
+      "unexpected_count": 4,
+      "threshold": "unique"
+    },
+    {
+      "id": "title_length",
+      "expectation": "ExpectColumnValueLengthsToBeBetween",
+      "column": "title",
+      "dimension": "Validity",
+      "success": false,
+      "observed_value": 14.2857,
+      "unexpected_count": 3,
+      "threshold": "len>=8"
+    },
+    {
+      "id": "summary_length",
+      "expectation": "ExpectColumnValueLengthsToBeBetween",
+      "column": "summary",
+      "dimension": "Completeness/Validity",
+      "success": false,
+      "observed_value": 14.2857,
+      "unexpected_count": 3,
+      "threshold": "len>=50"
+    },
+    {
+      "id": "summary_no_noise",
+      "expectation": "ExpectColumnValuesToNotMatchRegex",
+      "column": "summary",
+      "dimension": "Validity",
+      "success": false,
+      "observed_value": 14.2857,
+      "unexpected_count": 3,
+      "threshold": "[@#$%&*~^]{4,}"
+    },
+    {
+      "id": "freshness_sla",
+      "expectation": "custom:stale_ratio<=0.25",
+      "column": null,
+      "dimension": "Timeliness",
+      "success": false,
+      "observed_value": 0.2857,
+      "unexpected_count": 6,
+      "threshold": "age_days>180 ratio<=0.25"
+    }
+  ],
+  "freshness": {
+    "stale_rows": 6,
+    "total_rows": 21,
+    "stale_ratio": 0.2857,
+    "is_fresh": false
+  },
+  "generated_at": "2026-09-26T15:42:57+00:00"
+}
