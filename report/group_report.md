@@ -282,19 +282,19 @@ Corruption log:
 
 ## 10. So sánh baseline, corrupted và repaired
 
-Số liệu Baseline, Corrupted, Repaired chép từ `data/reports/corruption_report.md` §1. Cột Auto-repair B2 lấy từ [metrics](../data/auto_repair/20260926T154257352219Z-59897f5e/repaired_metrics.json) và [quality report](../data/auto_repair/20260926T154257352219Z-59897f5e/quality/repaired_quality_report.json) của run B2 (xem mục Bonus B2 bên dưới).
+Số liệu Baseline, Corrupted chép từ `data/reports/corruption_report.md` §1. Cột Auto-repair B2 lấy từ [metrics](../data/auto_repair/20260926T154257352219Z-59897f5e/repaired_metrics.json) và [quality report](../data/auto_repair/20260926T154257352219Z-59897f5e/quality/repaired_quality_report.json) của run B2 (xem mục Bonus B2 bên dưới).
 
 
-| Metric/signal            | Baseline | Corrupted | Repaired | Auto-repair B2 | Thay đổi do corruption | Mức phục hồi | Nhận xét                                                  |
-| ------------------------ | --------: | ---------: | --------: | --------------: | ----------------------: | ------------: | --------------------------------------------------------- |
-| `retrieval_hit_rate`     | 1.0000   | 0.8000    | 1.0000   | 0.9000         | -0.2000                | 100.0%       | Miss ở q02 (bài bị drop) và q05 (tiêu đề bị cắt); B2 còn miss q02 |
-| `mean_token_f1`          | 1.0000   | 0.8000    | 1.0000   | 0.8000         | -0.2000                | 100.0%       | Sai ở q03 và q05 — không trùng với tập câu miss retrieval; B2 vẫn sai 2 câu này |
-| `judge_accuracy`         | 1.0000   | 0.8000    | 1.0000   | 0.8000         | -0.2000                | 100.0%       | Cùng 2 câu q03, q05                                       |
-| `mean_judge_score`       | 5.0000   | 4.2000    | 5.0000   | 4.2000         | -0.8000                | 100.0%       | 8 câu × 5 + 2 câu × 1 = 42/10                             |
-| Quality checks pass/fail | 9/9      | 3/9       | 9/9      | 7/9            | -6                     | 100.0%       | 6 check fail đúng 6 kịch bản; B2 còn fail `row_count`, `title_length` |
-| Freshness status         | True     | False     | True     | True           | `stale_ratio` +0.2440  | 100.0%       | 1/24 → 6/21 → 1/24 dòng stale; B2 1/16                    |
+| Metric/signal            | Baseline | Corrupted | Auto-repair B2 | Thay đổi do corruption | Nhận xét                                                  |
+| ------------------------ | --------: | ---------: | --------------: | ----------------------: | --------------------------------------------------------- |
+| `retrieval_hit_rate`     | 1.0000   | 0.8000    | 0.9000         | -0.2000                | Miss ở q02 (bài bị drop) và q05 (tiêu đề bị cắt); B2 còn miss q02 |
+| `mean_token_f1`          | 1.0000   | 0.8000    | 0.8000         | -0.2000                | Sai ở q03 và q05 — không trùng với tập câu miss retrieval; B2 vẫn sai 2 câu này |
+| `judge_accuracy`         | 1.0000   | 0.8000    | 0.8000         | -0.2000                | Cùng 2 câu q03, q05                                       |
+| `mean_judge_score`       | 5.0000   | 4.2000    | 4.2000         | -0.8000                | 8 câu × 5 + 2 câu × 1 = 42/10                             |
+| Quality checks pass/fail | 9/9      | 3/9       | 7/9            | -6                     | 6 check fail đúng 6 kịch bản; B2 còn fail `row_count`, `title_length` |
+| Freshness status         | True     | False     | True           | `stale_ratio` +0.2440  | 1/24 → 6/21 dòng stale; B2 1/16                           |
 
-Cột "Thay đổi do corruption" và "Mức phục hồi" tính cho Repaired (repair bắt buộc từ raw). B2 là bonus chỉ dùng chính bảng corrupted: 16 dòng, status `partial`.
+B2 là bonus chỉ dùng chính bảng corrupted: 16 dòng, status `partial`.
 
 
 **Kết luận nhân quả:**
