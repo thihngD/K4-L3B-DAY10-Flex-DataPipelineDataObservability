@@ -90,7 +90,7 @@ python script/check_contracts.py testset
 - **Lý do:** 
   - `pd.Timestamp` khi serialize ra JSON hoặc nạp vào ChromaDB metadata thường bị lỗi không tương thích (ChromaDB chỉ nhận kiểu nguyên thủy: str, int, float, bool).
   - Việc public hàm `compose_text_for_embedding` giúp M1 khi tiêm lỗi dữ liệu (xóa summary, cắt ngắn tiêu đề) có thể gọi lại đúng hàm này để tính lại embedding text, đảm bảo tính nhất quán 100% giữa pha baseline và corrupted.
-- **Bằng chứng:** Module `index.py` và `quality.py` đọc DataFrame mà không gặp bất kỳ lỗi schema/type nào, Great Expectations kiểm tra `published` khớp regex `^\d{4}-\d{2}-\d{2}$` thành công.
+- **Bằng chứng:** `python script/check_contracts.py clean` → `[OK]` — validator này kiểm tra `published` là chuỗi khớp `^\d{4}-\d{2}-\d{2}$` và `text_for_embedding` đúng định dạng 5 phần. Sau khi ghi `papers_clean.json` và đọc lại bằng `pd.read_json`, cột `published` vẫn là kiểu chuỗi. (Bộ Great Expectations của M3 **không** có check định dạng ngày; không dùng GX làm bằng chứng cho điểm này.)
 
 ---
 
@@ -110,7 +110,7 @@ python script/check_contracts.py testset
 1. **Dữ liệu đi từ Crossref đến vector index:** 
    Crossref REST API trả về JSON thô → M1 parse thành `PaperRecord` (C1) → M2 làm sạch, khử trùng lặp, chuẩn hóa định dạng 5 phần `text_for_embedding` (C2) → M4 đưa vào mô hình `sentence-transformers/all-MiniLM-L6-v2` để sinh vector embeddings và lưu vào ChromaDB collection `papers-baseline`.
 2. **Evaluation set và ground-truth document IDs:** 
-   Bộ test gồm 10 câu hỏi tiêu biểu đại diện cho 4 tác vụ nghiệp vụ. `ground_truth_doc_ids` chứa ID bài báo chính xác để tính `retrieval_hit_rate` (liệu bài báo đúng có nằm trong top-k trả về không). `ground_truth` chứa câu trả lời chuẩn để tính `mean_token_f1` so sánh độ khớp giữa câu trả lời của LLM Agent và thực tế.
+   Bộ test gồm 10 câu hỏi tiêu biểu đại diện cho 4 tác vụ nghiệp vụ. `ground_truth_doc_ids` chứa ID bài báo chính xác để tính `retrieval_hit_rate` (liệu bài báo đúng có nằm trong top-k trả về không). `ground_truth` chứa câu trả lời chuẩn để tính `mean_token_f1` so sánh độ khớp giữa câu trả lời và thực tế. Câu trả lời do `retrieval/qa.py` trích xuất theo luật từ metadata của tài liệu top-1 (authors/published/categories/câu đầu của summary); LLM chỉ được dùng làm giám khảo cho `judge_accuracy`/`mean_judge_score`.
 3. **Quality checks khác freshness monitoring ở điểm nào:** 
    - *Quality checks (Great Expectations):* Kiểm soát tính toàn vẹn về cấu trúc và cú pháp (số lượng dòng, không null, độ dài chuỗi tối thiểu, không chứa ký tự rác, tính duy nhất của ID).
    - *Freshness monitoring:* Kiểm soát tính thời sự của tri thức (tỷ lệ bài báo quá hạn `age_days > 180`). Dữ liệu có thể hoàn toàn sạch và đúng schema nhưng vẫn vi phạm Freshness nếu bài báo quá cũ.
@@ -125,20 +125,22 @@ python script/check_contracts.py testset
 
 ## 8. Phân tích kết quả
 
-### Metrics chính (Từ Official Run của Nhóm)
+> ⏳ **Chưa có official run** (M4 chưa chạy `run_phase1.py` / `run_corruption_flow.py`). Bảng chỉ được điền bằng số chép từ `data/reports/corruption_report.md` của official run, kèm hash commit artifact. Không suy diễn từ fixture hay lần chạy thử.
+
+### Metrics chính
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân M2 |
 | :--- | :---: | :---: | :---: | :--- |
-| `retrieval_hit_rate` | *[Official]* | *[Official]* | *[Official]* | Tụt dốc ở pha Corrupted do mất 20% bản ghi mới và bị làm nhiễu tiêu đề/tóm tắt; phục hồi hoàn toàn sau Repair. |
-| `mean_token_f1` | *[Official]* | *[Official]* | *[Official]* | Giảm mạnh khi summary bị xóa rỗng hoặc chèn noise, phục hồi khi dữ liệu được làm sạch lại. |
-| `judge_accuracy` | *[Official]* | *[Official]* | *[Official]* | Đánh giá mức độ hài lòng ngữ nghĩa của câu trả lời. |
-| `mean_judge_score` | *[Official]* | *[Official]* | *[Official]* | Phản ánh chất lượng tổng thể của Agent. |
-| Quality checks | 9/9 Passed | Báo động Fail | 9/9 Passed | Phát hiện chính xác 6 kịch bản lỗi (row count, title length, noise, null/blank). |
-| Freshness status | `is_fresh=True` | `is_fresh=False` | `is_fresh=True` | Bị vi phạm khi M1 lùi ngày xuất bản của 6 bài báo về quá khứ 400 ngày. |
+| `retrieval_hit_rate` | N/A | N/A | N/A | Chưa có official run |
+| `mean_token_f1` | N/A | N/A | N/A | Chưa có official run |
+| `judge_accuracy` | N/A | N/A | N/A | Chưa có official run |
+| `mean_judge_score` | N/A | N/A | N/A | Chưa có official run |
+| Quality checks | N/A | N/A | N/A | Chưa có official run. Kỳ vọng theo C4-§5: 9/9 → 3/9 → 9/9. Lưu ý: summary rỗng `""` **không** bị check not-null bắt, chỉ `summary_length` bắt được. |
+| Freshness status | N/A | N/A | N/A | Chưa có official run. Kỳ vọng theo C4-§5: fresh → stale (do `stale_date` lùi `published` 400 ngày) → fresh. |
 
 ### Kết luận từ số liệu:
-1. **Chuỗi nguyên nhân 1 (Corruption):** Tiêm lỗi xóa summary và chèn noise → Quality Gate báo fail ở check `summary_length` và `summary_no_noise` → LLM Agent không tìm thấy thông tin phù hợp, dẫn đến `mean_token_f1` sụt giảm nghiêm trọng (*Silent Failure*).
-2. **Chuỗi nguyên nhân 2 (Repair):** Chạy Idempotent Repair tái tạo Clean DataFrame từ Raw gốc → Quality checks đạt 9/9 và Freshness phục hồi → ChromaDB re-index toàn bộ vector chuẩn → Các chỉ số đánh giá của Agent trở về ngang bằng trạng thái Baseline.
+1. Chưa kết luận: cần corrupted quality/freshness report và corrupted metrics từ official run để xác lập chuỗi corruption → quality signal → agent metric.
+2. Chưa kết luận: cần repaired quality/freshness report và repaired metrics từ official run để xác định mức phục hồi.
 
 ---
 
