@@ -89,9 +89,9 @@ py -3.11 -c "from core.config import load_settings; from ingestion.crossref impo
 
 Blocker tích hợp còn mở:
 
-- **Phạm vi bị ảnh hưởng:** `script/check_contracts.py` được rules tham chiếu nhưng hiện không có trong repo; chưa có official corruption log/metrics từ flow M4.
-- **Những gì đã loại trừ:** Đã chạy clean thật từ `build_clean_dataframe` qua C5; kiểm tra đúng 16 cột, không null, không mutate baseline, counts đúng và embedding text khớp helper M2.
-- **Bước tiếp theo:** M4 chạy official `corruption_flow`; đối chiếu artifact log/quality/metrics thực tế. Chạy checker contract nếu nhóm bổ sung script.
+- **Phạm vi bị ảnh hưởng:** Chưa có official corruption log/metrics từ flow M4.
+- **Những gì đã loại trừ:** Đã chạy clean thật từ `build_clean_dataframe` qua C5; kiểm tra đúng 16 cột, không null, không mutate baseline, counts đúng và embedding text khớp helper M2. `script/check_contracts.py` (có trên `main` từ commit `cf9151a`) cho kết quả `[OK] raw` và `[OK] corruption_log` khi kiểm tra tích hợp trên nhánh thử `merTest` (merge M1 + M2 + M3, log ghi vào thư mục tạm, không phải official artifact).
+- **Bước tiếp theo:** M4 chạy official `corruption_flow`; đối chiếu artifact log/quality/metrics thực tế.
 
 ## 7. Hiểu biết về luồng end-to-end
 
