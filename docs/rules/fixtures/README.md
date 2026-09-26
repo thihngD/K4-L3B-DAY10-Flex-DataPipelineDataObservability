@@ -15,10 +15,11 @@
 Ví dụ M3 test report không cần pipeline:
 
 ```python
-from core.utils import read_json
+from pathlib import Path
+from core.utils import read_json   # read_json nhận Path, không nhận str
 from observability.reporting import generate_corruption_report
-F = "docs/rules/fixtures/"
-m, q, f, log = (read_json(F + n) for n in ["metrics.sample.json", "quality.sample.json", "freshness.sample.json", "corruption_log.sample.json"])
+F = Path("docs/rules/fixtures")
+m, q, f, log = (read_json(F / n) for n in ["metrics.sample.json", "quality.sample.json", "freshness.sample.json", "corruption_log.sample.json"])
 generate_corruption_report("scratch_corruption_report.md", m, m, m, q, q, f, f,
                            baseline_quality=q, baseline_freshness=f, corruption_log=log)
 ```
