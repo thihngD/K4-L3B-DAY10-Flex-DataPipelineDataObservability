@@ -108,6 +108,7 @@ $env:REFRESH_TEST_SET = '0'
 $env:RUN_RAGAS = '0'
 .venv/Scripts/python.exe script/run_phase1.py
 .venv/Scripts/python.exe script/run_corruption_flow.py
+.venv/Scripts/python.exe script/run_corruption_flow.py --auto-repair
 .venv/Scripts/python.exe dashboard/build_dashboard.py
 .venv/Scripts/python.exe -m pytest -q
 ```
@@ -281,17 +282,19 @@ Corruption log:
 
 ## 10. So sánh baseline, corrupted và repaired
 
-Số liệu chép từ `data/reports/corruption_report.md` §1.
+Số liệu Baseline, Corrupted, Repaired chép từ `data/reports/corruption_report.md` §1. Cột Auto-repair B2 lấy từ [metrics](../data/auto_repair/20260926T154257352219Z-59897f5e/repaired_metrics.json) và [quality report](../data/auto_repair/20260926T154257352219Z-59897f5e/quality/repaired_quality_report.json) của run B2 (xem mục Bonus B2 bên dưới).
 
 
-| Metric/signal            | Baseline | Corrupted | Repaired | Thay đổi do corruption | Mức phục hồi | Nhận xét                                                  |
-| ------------------------ | --------: | ---------: | --------: | ----------------------: | ------------: | --------------------------------------------------------- |
-| `retrieval_hit_rate`     | 1.0000   | 0.8000    | 1.0000   | -0.2000                | 100.0%       | Miss ở q02 (bài bị drop) và q05 (tiêu đề bị cắt)          |
-| `mean_token_f1`          | 1.0000   | 0.8000    | 1.0000   | -0.2000                | 100.0%       | Sai ở q03 và q05 — không trùng với tập câu miss retrieval |
-| `judge_accuracy`         | 1.0000   | 0.8000    | 1.0000   | -0.2000                | 100.0%       | Cùng 2 câu q03, q05                                       |
-| `mean_judge_score`       | 5.0000   | 4.2000    | 5.0000   | -0.8000                | 100.0%       | 8 câu × 5 + 2 câu × 1 = 42/10                             |
-| Quality checks pass/fail | 9/9      | 3/9       | 9/9      | -6                     | 100.0%       | 6 check fail đúng 6 kịch bản                              |
-| Freshness status         | True     | False     | True     | `stale_ratio` +0.2440  | 100.0%       | 1/24 → 6/21 → 1/24 dòng stale                             |
+| Metric/signal            | Baseline | Corrupted | Repaired | Auto-repair B2 | Thay đổi do corruption | Mức phục hồi | Nhận xét                                                  |
+| ------------------------ | --------: | ---------: | --------: | --------------: | ----------------------: | ------------: | --------------------------------------------------------- |
+| `retrieval_hit_rate`     | 1.0000   | 0.8000    | 1.0000   | 0.9000         | -0.2000                | 100.0%       | Miss ở q02 (bài bị drop) và q05 (tiêu đề bị cắt); B2 còn miss q02 |
+| `mean_token_f1`          | 1.0000   | 0.8000    | 1.0000   | 0.8000         | -0.2000                | 100.0%       | Sai ở q03 và q05 — không trùng với tập câu miss retrieval; B2 vẫn sai 2 câu này |
+| `judge_accuracy`         | 1.0000   | 0.8000    | 1.0000   | 0.8000         | -0.2000                | 100.0%       | Cùng 2 câu q03, q05                                       |
+| `mean_judge_score`       | 5.0000   | 4.2000    | 5.0000   | 4.2000         | -0.8000                | 100.0%       | 8 câu × 5 + 2 câu × 1 = 42/10                             |
+| Quality checks pass/fail | 9/9      | 3/9       | 9/9      | 7/9            | -6                     | 100.0%       | 6 check fail đúng 6 kịch bản; B2 còn fail `row_count`, `title_length` |
+| Freshness status         | True     | False     | True     | True           | `stale_ratio` +0.2440  | 100.0%       | 1/24 → 6/21 → 1/24 dòng stale; B2 1/16                    |
+
+Cột "Thay đổi do corruption" và "Mức phục hồi" tính cho Repaired (repair bắt buộc từ raw). B2 là bonus chỉ dùng chính bảng corrupted: 16 dòng, status `partial`.
 
 
 **Kết luận nhân quả:**
@@ -301,6 +304,10 @@ Số liệu chép từ `data/reports/corruption_report.md` §1.
 3. Repair dựng lại từ raw với `run_date` baseline → dữ liệu trùng từng byte với baseline, quality 9/9 và `stale_ratio` 0.0417 → mọi metric agent trở về 1.0000, phục hồi 100%.
 
 Kết quả khác kỳ vọng: `stale_date`, `inject_noise` và `duplicate_rows` làm quality/freshness gate báo lỗi nhưng không làm giảm metric agent, vì không câu hỏi nào dùng trường bị hỏng của các bài đó (nhiễu nằm trong summary nhưng câu hỏi về bài đó hỏi ngày; bài bị lùi ngày không có câu hỏi `date`). Đây là lý do quality gate cần chạy độc lập với benchmark: benchmark nhỏ không bao phủ hết lỗi dữ liệu.
+
+### Bonus B2: auto-repair từ bảng corrupted
+
+`script/run_corruption_flow.py --auto-repair` kiểm tra lại `data/clean/papers_clean_corrupted.json`; khi gate fail, pipeline tự sửa từng record chỉ bằng dữ liệu của chính bảng (không đọc raw snapshot, baseline hay corruption log, không gọi mạng), kiểm định lại rồi publish ở trạng thái `completed` hoặc `partial`. Run `20260926T154257352219Z-59897f5e` (22:42 UTC+7), provider `mock` (judge heuristic), status `partial`; số liệu nằm trong cột Auto-repair B2 của bảng trên. Số dòng 21 → 16. Hit rate tăng 0.8 → 0.9 vì q05 vào lại top-4 khi bỏ 2 dòng summary rỗng chiếm chỗ. Sửa được từ bảng: 2 dòng trùng, nhiễu ở 3 summary (1 summary còn từ `semantic` bị tách thành `sema ntic`) và 6 ngày xuất bản. Không sửa được: 5 dòng bị xóa và 3 tiêu đề bị cắt, vì dữ liệu không còn dấu vết nào của chúng; đây là lý do repair bắt buộc phải dựng lại từ raw. Chi tiết: [AUTO_REPAIR.md](../docs/AUTO_REPAIR.md), [repair log](../data/auto_repair/20260926T154257352219Z-59897f5e/repair_log.json).
 
 ## 11. Vấn đề tích hợp quan trọng
 
