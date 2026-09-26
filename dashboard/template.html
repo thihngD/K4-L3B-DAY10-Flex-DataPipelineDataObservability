@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Observability Dashboard</title>
+<style>
+  :root {
+    --surface: #fcfcfb; --panel: #ffffff; --border: #e4e3df; --grid: #eeede9;
+    --ink: #1d1d1b; --ink-2: #4a4a46; --ink-3: #75746f;
+    --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100;
+    --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --critical: #d03b3b;
+    --good-bg: #e8f6e8; --warning-bg: #fff4dc; --critical-bg: #fbe9e9;
+    --accent-bg: #eef4fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #1a1a19; --panel: #232322; --border: #3a3936; --grid: #2e2d2b;
+      --ink: #f1f0ec; --ink-2: #c9c8c2; --ink-3: #9a9993;
+      --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500;
+      --good-bg: #1c2e1c; --warning-bg: #33290f; --critical-bg: #3a1f1f;
+      --accent-bg: #1e2a3a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  .sub { color: var(--ink-3); margin: 0 0 20px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px;
+         border: 1px solid var(--border); background: var(--panel); color: var(--ink); cursor: pointer; font: inherit; }
+  .tab[aria-pressed="true"] { border-color: var(--ink-2); background: var(--accent-bg); font-weight: 600; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; min-width: 0; }
+  .span-12 { grid-column: span 12; } .span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; } .span-6 { grid-column: span 6; }
+  @media (max-width: 860px) { .span-7, .span-5, .span-6 { grid-column: span 12; } }
+  .tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .tile { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .tile .label { color: var(--ink-3); font-size: 12px; }
+  .tile .value { font-size: 24px; font-weight: 650; margin-top: 2px; }
+  .tile .note { color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
+  .icon { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%;
+          color: #fff; font-size: 11px; font-weight: 700; flex: none; }
+  .icon.good { background: var(--good); } .icon.warning { background: var(--warning); color: #1d1d1b; }
+  .icon.critical { background: var(--critical); }
+  .alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .alert { display: flex; gap: 10px; padding: 10px 12px; border-radius: 8px; }
+  .alert.good { background: var(--good-bg); } .alert.warning { background: var(--warning-bg); }
+  .alert.critical { background: var(--critical-bg); }
+  .alert .title { font-weight: 600; } .alert .detail { color: var(--ink-2); font-size: 12px; }
+  .chart { position: relative; }
+  .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .axis text, .chart text { fill: var(--ink-3); font-size: 11px; }
+  .chart .value-label { fill: var(--ink-2); font-size: 11px; font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 8px; color: var(--ink-2); font-size: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .tick-swatch { width: 14px; height: 0; border-top: 2px solid var(--ink-2); display: inline-block; }
+  .tooltip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface);
+             padding: 6px 9px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0;
+             transform: translate(-50%, -110%); transition: opacity .08s; z-index: 2; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { color: var(--ink-3); font-weight: 600; font-size: 12px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .selected-col { background: var(--accent-bg); }
+  .table-wrap { overflow-x: auto; }
+  .muted { color: var(--ink-3); font-size: 12px; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0 0 12px; }
+  .kv dt { color: var(--ink-3); } .kv dd { margin: 0; }
+  code { font-size: 12px; background: var(--grid); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Data Observability Dashboard</h1>
+  <p class="sub">Crossref RAG pipeline · quality gate (GX 1.x), freshness SLA, age distribution and drift vs baseline · <span id="generated"></span></p>
+  <div class="tabs" id="tabs" role="group" aria-label="Pipeline state"></div>
+  <section class="tiles" id="tiles" aria-label="Key signals"></section>
+  <div class="grid" style="margin-top:16px">
+    <section class="panel span-5"><h2>Drift &amp; quality alerts</h2><ul class="alerts" id="alerts"></ul></section>
+    <section class="panel span-7"><h2>Paper age distribution (days since publication)</h2>
+      <div class="legend" id="age-legend"></div><div class="chart" id="age-chart"></div></section>
+    <section class="panel span-12"><h2>Quality checks by state</h2><div class="table-wrap"><table id="checks"></table></div></section>
+    <section class="panel span-6"><h2>Retrieval &amp; answer metrics</h2>
+      <div class="legend" id="metric-legend"></div><div class="chart" id="metric-chart"></div></section>
+    <section class="panel span-6" id="repair-panel"><h2>Auto-repair (B2) run</h2><div id="repair"></div></section>
+    <section class="panel span-12"><h2>Corruption scenarios</h2><div class="table-wrap"><table id="scenarios"></table></div></section>
+  </div>
+  <p class="muted" id="sources"></p>
+</main>
+<script id="data" type="application/json">__DASHBOARD_DATA__</script>
+<script>
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const COLOR = { baseline: "var(--c1)", corrupted: "var(--c2)", repaired: "var(--c3)", auto_repair: "var(--c4)" };
+const STATES = DATA.states;
+const BASE = STATES[0];
+const ICON = { good: "✓", warning: "!", critical: "✕" };
+const LEVEL = { good: "OK", warning: "Warning", critical: "Critical" };
+const BINS = [[0, 30, "0–30"], [31, 60, "31–60"], [61, 90, "61–90"], [91, 120, "91–120"], [121, 150, "121–150"],
+              [151, 180, "151–180"], [181, 365, "181–365"], [366, Infinity, ">365"]];
+let selected = (STATES.find(s => s.key === "corrupted") || BASE).key;
+
+const esc = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = v => (v * 100).toFixed(1) + "%";
+const fmt = v => (v === null || v === undefined) ? "—" : Number(v).toFixed(4);
+const stateOf = key => STATES.find(s => s.key === key);
+const badge = (level, text) => `<span class="status"><span class="icon ${level}" aria-hidden="true">${ICON[level]}</span>${esc(text)}</span>`;
+
+function tooltipFor(container) {
+  let tip = container.querySelector(".tooltip");
+  if (!tip) { tip = document.createElement("div"); tip.className = "tooltip"; container.appendChild(tip); }
+  return tip;
+}
+function bindHover(container, svg) {
+  const tip = tooltipFor(container);
+  svg.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("mousemove", e => {
+      const box = container.getBoundingClientRect();
+      tip.textContent = el.dataset.tip;
+      tip.style.left = (e.clientX - box.left) + "px";
+      tip.style.top = (e.clientY - box.top) + "px";
+      tip.style.opacity = 1;
+    });
+    el.addEventListener("mouseleave", () => { tip.style.opacity = 0; });
+  });
+}
+// Bar with a 4px rounded data end; `dir` is "up" (vertical) or "right" (horizontal).
+function bar(x, y, w, h, dir) {
+  const r = Math.min(4, dir === "up" ? w / 2 : h / 2, dir === "up" ? h : w);
+  if (h <= 0 || w <= 0) return "";
+  if (dir === "up") return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+  return `M${x},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h - r}Q${x + w},${y + h} ${x + w - r},${y + h}H${x}Z`;
+}
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = STATES.map(s =>
+    `<button class="tab" aria-pressed="${s.key === selected}" data-key="${s.key}">
+       <span class="swatch" style="background:${COLOR[s.key]}"></span>${esc(s.label)}</button>`).join("");
+  document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { selected = b.dataset.key; render(); }));
+}
+
+function renderTiles(s) {
+  const q = s.quality, f = s.freshness, m = s.metrics || {};
+  const tiles = [
+    ["Quality gate", badge(q.success ? "good" : "critical", q.success ? "Pass" : "Fail"), `${q.passed}/${q.total} checks passed`],
+    ["Freshness SLA", badge(f.is_fresh ? "good" : "critical", pct(f.stale_ratio) + " stale"),
+     `${f.stale_rows}/${f.total_rows} older than ${f.threshold_days} days · limit ${pct(f.max_stale_ratio)}`],
+    ["Rows indexed", `<div class="value">${s.rows}</div>`, `baseline ${BASE.rows}`],
+    ["Retrieval hit rate", `<div class="value">${fmt(m.retrieval_hit_rate)}</div>`, `baseline ${fmt(BASE.metrics && BASE.metrics.retrieval_hit_rate)}`],
+    ["Mean token F1", `<div class="value">${fmt(m.mean_token_f1)}</div>`, `baseline ${fmt(BASE.metrics && BASE.metrics.mean_token_f1)}`],
+    ["Judge accuracy", `<div class="value">${fmt(m.judge_accuracy)}</div>`, `baseline ${fmt(BASE.metrics && BASE.metrics.judge_accuracy)}`],
+  ];
+  document.getElementById("tiles").innerHTML = tiles.map(([label, value, note]) =>
+    `<div class="tile"><div class="label">${label}</div>${value.startsWith("<div") ? value : `<div style="margin-top:8px">${value}</div>`}<div class="note">${note}</div></div>`).join("");
+}
+
+function renderAlerts(s) {
+  document.getElementById("alerts").innerHTML = s.alerts.map(a =>
+    `<li class="alert ${a.level}"><span class="icon ${a.level}" aria-hidden="true">${ICON[a.level]}</span>
+       <div><div class="title">${LEVEL[a.level]}: ${esc(a.title)}</div><div class="detail">${esc(a.detail)}</div></div></li>`).join("");
+}
+
+function histogram(ages) { return BINS.map(([lo, hi]) => ages.filter(a => a >= lo && a <= hi).length); }
+
+function renderAges(s) {
+  const counts = histogram(s.ages), base = histogram(BASE.ages), showBase = s.key !== "baseline";
+  const W = 640, H = 250, L = 34, R = 10, T = 18, B = 40, pw = W - L - R, ph = H - T - B;
+  const max = Math.max(1, ...counts, ...(showBase ? base : []));
+  const step = max <= 5 ? 1 : max <= 12 ? 2 : 5, top = Math.ceil(max / step) * step;
+  const y = v => T + ph - (v / top) * ph, band = pw / BINS.length, bw = band * 0.62;
+  let svg = "";
+  for (let v = 0; v <= top; v += step)
+    svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  const sla = L + band * 6;
+  svg += `<line x1="${sla}" x2="${sla}" y1="${T - 6}" y2="${T + ph}" stroke="var(--critical)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="${sla + 4}" y="${T + 2}" style="fill:var(--critical)">SLA 180 days → stale</text>`;
+  BINS.forEach(([, , label], i) => {
+    const x = L + band * i + (band - bw) / 2, h = (counts[i] / top) * ph;
+    svg += `<path d="${bar(x, y(counts[i]), bw, h, "up")}" fill="${COLOR[s.key]}"/>`;
+    if (counts[i]) svg += `<text class="value-label" x="${x + bw / 2}" y="${y(counts[i]) - 5}" text-anchor="middle">${counts[i]}</text>`;
+    if (showBase) svg += `<line x1="${x - 3}" x2="${x + bw + 3}" y1="${y(base[i])}" y2="${y(base[i])}" stroke="var(--ink-2)" stroke-width="2"/>`;
+    svg += `<text x="${L + band * i + band / 2}" y="${H - B + 16}" text-anchor="middle">${label}</text>`;
+    const share = s.ages.length ? ` (${pct(counts[i] / s.ages.length)})` : "";
+    svg += `<rect x="${L + band * i}" y="${T}" width="${band}" height="${ph}" fill="transparent"
+             data-tip="${label} days: ${counts[i]} rows${share}${showBase ? ` · baseline ${base[i]}` : ""}"/>`;
+  });
+  svg += `<text x="${L + pw / 2}" y="${H - 4}" text-anchor="middle">age_days</text>`;
+  const el = document.getElementById("age-chart");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Histogram of paper age in days for ${esc(s.label)}">${svg}</svg>`;
+  bindHover(el, el.querySelector("svg"));
+  document.getElementById("age-legend").innerHTML =
+    `<span><span class="swatch" style="background:${COLOR[s.key]}"></span>${esc(s.label)}</span>` +
+    (showBase ? `<span><span class="tick-swatch"></span>Baseline count</span>` : "");
+}
+
+function renderMetrics() {
+  const metrics = [["retrieval_hit_rate", "Hit rate"], ["mean_token_f1", "Token F1"], ["judge_accuracy", "Judge accuracy"]];
+  const withMetrics = STATES.filter(s => s.metrics);
+  const W = 640, L = 110, R = 50, bh = 12, gap = 2, groupGap = 18;
+  const groupH = withMetrics.length * (bh + gap), H = metrics.length * (groupH + groupGap), pw = W - L - R;
+  let svg = "";
+  [0, 0.5, 1].forEach(v => {
+    const x = L + v * pw;
+    svg += `<line x1="${x}" x2="${x}" y1="0" y2="${H - groupGap + 4}" stroke="var(--grid)"/><text x="${x}" y="${H + 8}" text-anchor="middle">${v.toFixed(1)}</text>`;
+  });
+  metrics.forEach(([key, name], g) => {
+    const gy = g * (groupH + groupGap);
+    svg += `<text x="${L - 10}" y="${gy + groupH / 2 + 4}" text-anchor="end" style="fill:var(--ink-2)">${name}</text>`;
+    withMetrics.forEach((s, i) => {
+      const v = s.metrics[key], by = gy + i * (bh + gap), w = v * pw;
+      svg += `<path d="${bar(L, by, w, bh, "right")}" fill="${COLOR[s.key]}" opacity="${s.key === selected ? 1 : 0.45}"/>`;
+      svg += `<text class="value-label" x="${L + w + 6}" y="${by + bh - 2}">${v.toFixed(2)}</text>`;
+      svg += `<rect x="${L}" y="${by}" width="${pw}" height="${bh + gap}" fill="transparent" data-tip="${esc(s.label)} · ${name}: ${v.toFixed(4)}"/>`;
+    });
+  });
+  const el = document.getElementById("metric-chart");
+  el.innerHTML = `<svg viewBox="0 -4 ${W} ${H + 16}" role="img" aria-label="Retrieval and answer metrics for each state">${svg}</svg>`;
+  bindHover(el, el.querySelector("svg"));
+  document.getElementById("metric-legend").innerHTML = withMetrics.map(s =>
+    `<span><span class="swatch" style="background:${COLOR[s.key]}"></span>${esc(s.label)}</span>`).join("");
+}
+
+function renderChecks() {
+  const ids = BASE.quality.checks.map(c => c.id);
+  const head = `<tr><th>Check</th><th>Dimension</th><th>Threshold</th>${STATES.map(s =>
+    `<th class="${s.key === selected ? "selected-col" : ""}"><span class="swatch" style="background:${COLOR[s.key]}"></span> ${esc(s.label)}</th>`).join("")}</tr>`;
+  const rows = ids.map(id => {
+    const ref = BASE.quality.checks.find(c => c.id === id);
+    return `<tr><td><code>${esc(id)}</code></td><td>${esc(ref.dimension)}</td><td class="muted">${esc(ref.threshold)}</td>` +
+      STATES.map(s => {
+        const c = s.quality.checks.find(x => x.id === id);
+        const detail = c.success ? "" : ` <span class="muted">(${c.unexpected_count ? `${c.unexpected_count} rows` : esc(c.observed_value)})</span>`;
+        return `<td class="${s.key === selected ? "selected-col" : ""}">${badge(c.success ? "good" : "critical", c.success ? "Pass" : "Fail")}${detail}</td>`;
+      }).join("") + "</tr>";
+  }).join("");
+  document.getElementById("checks").innerHTML = `<thead>${head}</thead><tbody>${rows}</tbody>`;
+}
+
+function renderRepair() {
+  const s = stateOf("auto_repair"), panel = document.getElementById("repair-panel");
+  if (!s) { panel.style.display = "none"; return; }
+  const r = s.repair, level = r.status === "completed" ? "good" : r.status === "partial" ? "warning" : "critical";
+  const counts = Object.entries(r.summary).map(([k, v]) => `<tr><td><code>${esc(k)}</code></td><td class="num">${v}</td></tr>`).join("");
+  const fields = Object.entries(r.fields).map(([k, v]) => `<tr><td><code>${esc(k)}</code></td><td class="num">${v}</td></tr>`).join("");
+  const lost = r.unrecoverable.map(u => `<li><code>${esc(u.paper_id)}</code> ${esc(u.field)} = “${esc(u.value)}” · ${esc(u.reason)}</li>`).join("");
+  document.getElementById("repair").innerHTML = `
+    <dl class="kv"><dt>Status</dt><dd>${badge(level, r.status)}</dd>
+      <dt>Run</dt><dd><code>${esc(r.run_id)}</code></dd>
+      <dt>Rows</dt><dd>${r.input_rows} corrupted → ${r.output_rows} repaired</dd>
+      <dt>Still failing</dt><dd>${r.remaining_failures.length ? r.remaining_failures.map(f => `<code>${esc(f)}</code>`).join(" ") : "none"}</dd></dl>
+    <table><thead><tr><th>Repair action</th><th class="num">Count</th></tr></thead><tbody>${counts}</tbody></table>
+    ${fields ? `<table style="margin-top:10px"><thead><tr><th>Field : method</th><th class="num">Count</th></tr></thead><tbody>${fields}</tbody></table>` : ""}
+    ${lost ? `<p class="muted" style="margin:10px 0 4px">Cannot be recovered from the table alone:</p><ul class="muted" style="margin:0;padding-left:18px">${lost}</ul>` : ""}
+    <p class="muted">Audit log: <code>${esc(r.log)}</code></p>`;
+}
+
+function renderScenarios() {
+  document.getElementById("scenarios").innerHTML = `<thead><tr><th>Scenario</th><th>What it does</th><th class="num">Rows affected</th></tr></thead><tbody>` +
+    DATA.scenarios.map(s => `<tr><td><code>${esc(s.name)}</code></td><td>${esc(s.description)}</td><td class="num">${s.affected_rows}</td></tr>`).join("") + "</tbody>";
+}
+
+function render() {
+  const s = stateOf(selected);
+  renderTabs(); renderTiles(s); renderAlerts(s); renderAges(s); renderMetrics(); renderChecks(); renderRepair();
+  document.getElementById("sources").innerHTML = "Sources for " + esc(s.label) + ": " + s.sources.map(p => `<code>${esc(p)}</code>`).join(" ") +
+    " · Judge accuracy comes from the heuristic judge when the run used <code>LLM_PROVIDER=mock</code>.";
+}
+document.getElementById("generated").textContent = "generated " + DATA.generated_at;
+renderScenarios();
+render();
+</script>
+</body>
+</html>
