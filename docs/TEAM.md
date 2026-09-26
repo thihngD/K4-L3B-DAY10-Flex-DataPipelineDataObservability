@@ -14,7 +14,7 @@
 |---:|---|---|---|---|---|
 | 1 | | | | **M1 — Source & Corruption owner** (`ingestion/crossref.py`, `ingestion/corruption.py`, `data/raw/`) · contract C1, C5 | `report/<MSSV1>_HoTen.md` |
 | 2 | | | | **M2 — Data model & Eval-set owner** (`ingestion/cleaning.py`, `evaluation/testset.py`) · contract C2, C3 | `report/<MSSV2>_HoTen.md` |
-| 3 | Nguyễn Đức Thịnh | 2A202602468 | thihnghldh@gmail.com | **M3 — Observability & Reporting owner** (`observability/quality.py` GX 1.x + Freshness, `observability/reporting.py`) · contract C4, C6-§3 · nhánh `thihn/02468` | [`report/NguyenDucThinh-0268.md`](../report/NguyenDucThinh-0268.md) |
+| 3 | Nguyễn Đức Thịnh | 2A202602468 | thihnghldh@gmail.com | **M3 — Observability & Reporting owner** (`observability/quality.py` GX 1.x + Freshness, `observability/reporting.py`) · contract C4, C6-§3 · nhánh `thihn/02468` | [`report/2A202602468_NguyenDucThinh.md`](../report/2A202602468_NguyenDucThinh.md) |
 | 4 | | | | **M4 — Trưởng nhóm / Integration & Repair owner** (`pipelines/phase1.py`, `pipelines/corruption_flow.py`, official run & artifacts) · contract C6 | `report/<MSSV4>_HoTen.md` |
 
 ---
