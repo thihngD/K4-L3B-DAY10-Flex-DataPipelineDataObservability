@@ -23,6 +23,13 @@ def _fmt(value: Any) -> str:
     return str(value)
 
 
+def _metric(value: Any) -> Any:
+    """statistics.mean tra int khi moi diem bang nhau (vd 5); ep float de hien thi thong nhat 4 chu so."""
+    if isinstance(value, int) and not isinstance(value, bool):
+        return float(value)
+    return value
+
+
 def _num(value: Any) -> float | None:
     if isinstance(value, bool) or value is None:
         return None
@@ -77,7 +84,7 @@ def generate_phase1_report(
 
     lines += ["", "## 2. Retrieval & Answer Metrics", ""]
     metric_rows = [["`samples`", metrics.get("samples")]]
-    metric_rows += [[f"`{key}`", metrics.get(key)] for key in METRIC_KEYS]
+    metric_rows += [[f"`{key}`", _metric(metrics.get(key))] for key in METRIC_KEYS]
     metric_rows.append(["`ragas`", metrics.get("ragas")])
     lines += _table(["Metric", "Value"], metric_rows)
 
@@ -204,7 +211,7 @@ def generate_corruption_report(
 
     lines = ["# Corruption Impact Report", ""]
     lines += ["## 1. Three-State Comparison", ""]
-    rows = [_delta_row(f"`{key}`", *(states[s].get(key) for s in states)) for key in METRIC_KEYS]
+    rows = [_delta_row(f"`{key}`", *(_metric(states[s].get(key)) for s in states)) for key in METRIC_KEYS]
 
     passed = [_passed(qualities[s]) for s in states]
     rows.append(_delta_row("Quality checks passed", *(p[0] for p in passed), display=[p[1] for p in passed]))
